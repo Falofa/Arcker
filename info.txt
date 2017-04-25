@@ -1,0 +1,6 @@
+"AddonInfo"
+{
+        "name"              "Arcker"
+        "version"           "v2.1"
+        "author_name"       "Falofa"
+}

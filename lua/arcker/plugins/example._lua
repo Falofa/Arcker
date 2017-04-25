@@ -1,0 +1,32 @@
+local Plugin = {} // Creating our plugin object
+Plugin.Name 	= "Example" // A name to be printed on screen/console
+Plugin.Id		= "example" // A unique id ( please only use a-z characters )
+Plugin.Author 	= "Falofa" // Your name
+
+
+Plugin.Load = function( Arcker )
+	/*
+		In here you should:
+		Declare commands
+		Create timers
+		Add hooks...
+	*/
+	Plugin.Variable	= 1 
+		// Creating a local variable
+	Arcker.Variable = Arcker.Variable or 1 
+		/* 
+			Creating a global variable that will be kept even after the plugin reloads
+			NOTE: Will not be kept after the server reloads, you should save it on a file if that is your intent
+			( or using SQL / FaloSQL if you know what you are doing )
+		*/
+end
+Plugin.Unload = function( Arcker )
+	/*
+		In here you should:
+		Unregister commands
+		Remove timers
+		Remove hooks...
+	*/
+end
+
+return Plugin // !!REQUIRED!! Returns your plugin to be processed by Arcker

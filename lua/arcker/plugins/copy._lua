@@ -1,0 +1,13 @@
+local Plugin = {}
+Plugin.Name 	= ""
+Plugin.Id		= ""
+Plugin.Author 	= ""
+
+
+Plugin.Load = function( Arcker )
+end
+
+Plugin.Unload = function( Arcker )
+end
+
+return Plugin
