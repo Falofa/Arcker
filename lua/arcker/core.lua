@@ -30,14 +30,21 @@ if SERVER then
 	end )
 	
 	net.Receive( 'arcker sv lua', function( len, ply )
-		local s = string.sub( net.ReadString(), 4 )
+		local s = string.format( [[ local print = function( ... ) Arcker.Print( ply, 1, ... ) end return ( %s ) or nil ]], string.sub( net.ReadString(), 4 ) )
 		local function run( )
-			local print = function( ... ) Arcker.Print( ply, 1, ... ) end 
 			local func = CompileString( s, string.format( '%s(%s)\'s lua run', ply:GetName(), ply:SteamID() ), false )
 			local ran, ret = pcall( func )
-			print = nil
 			if ran then
-				Arcker.Print( ply, 1, Color( 0, 255, 0 ), '=' , tostring( ret ) )
+				if ret == nil then Arcker.Print( ply, 1, Color( 255, 255, 255 ), "Returned nil" ) return end
+				local val = tostring( ret )
+				if type( ret ) == 'table' then
+					val = util.TableToJSON( ret, true )
+				end
+				if type( ret ) == 'function' then
+					local fi = debug.getinfo(ret)
+					val = string.format( '%s - %s:%i', val, fi['source'], fi['linedefined'] )
+				end
+				Arcker.Print( ply, 1, Color( 255, 255, 255 ), string.format( "Returned %s: ", string.lower( type( ret ) ) ), Color( 255, 255, 100 ), val  )
 			else
 				Arcker.Print( ply, 1, Color( 255, 0, 0 ), tostring( ret ) )
 			end

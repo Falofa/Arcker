@@ -23,7 +23,7 @@ if CLIENT then
 		local Text = net.ReadTable()
 		local Type = net.ReadInt( 4 )
 		if Type == Arcker.PRINTCHAT then chat.AddText( unpack( Text ) ) end
-		if Type == Arcker.PRINTCONSOLE then MsgC( unpack( Text ) ) end
+		if Type == Arcker.PRINTCONSOLE then table.insert(Text, #Text+1, '\n') MsgC( unpack( Text ) ) end
 		if Type == Arcker.PRINTF then print( string.format( unpack( Text ) ) ) end
 	end )
 end
