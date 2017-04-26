@@ -22,7 +22,7 @@ if SERVER then
 	local cs = 2		// Client Side
 	local sh = sv + cs	// Shared
 	local Files = {
-		{ 'print', sh },
+		{ 'net', sh },
 		{ 'core', sh },
 	}
 	Arcker.ServerFiles = {}
@@ -43,17 +43,22 @@ if SERVER then
 		end
 	end
 	
-	if #player.GetHumans() then
-		net.Start( 'arcker files' )
-		net.WriteTable( Arcker.ClientFiles )
-		net.Broadcast( )
+	function Arcker.CsInclude( ply )
+		if ply then
+			net.Start( 'arcker files' )
+			net.WriteTable( Arcker.ClientFiles )
+			net.Send( ply )
+		elseif #player.GetHumans() then
+			net.Start( 'arcker files' )
+			net.WriteTable( Arcker.ClientFiles )
+			net.Broadcast( )
+		end
 	end
 	
-	hook.Add( 'PlayerAuthed', function( ply, sid, uid )
-		net.Start( 'arcker files' )
-		net.WriteTable( Arcker.ClientFiles )
-		net.Send( ply )
-	end )
+	hook.Add( 'PlayerAuthed', Arcker.CsInclude )
+	hook.Add( 'PlayerInitialSpawn', Arcker.CsInclude )
+	
+	
 end
 
 if CLIENT then
