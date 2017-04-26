@@ -1,0 +1,1 @@
+"^(?!local)[a-z0-9]+ ?=[^=]" # Finds all global variables
