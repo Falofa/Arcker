@@ -1,3 +1,5 @@
+// Shared
+// Sequence(6000)
 // Print type enum
 Arcker.PRINTCHAT = 0
 Arcker.PRINTCONSOLE = 1

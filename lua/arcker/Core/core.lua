@@ -1,3 +1,5 @@
+// Shared
+// Sequence(5000)
 if SERVER then
 	util.AddNetworkString( 'arcker login' )
 	util.AddNetworkString( 'arcker sv lua' )
@@ -13,6 +15,14 @@ if SERVER then
 	Arcker.DevPW = CreateConVar( 'arcker_devpw', Arcker.MakePW(), { FCVAR_ARCHIVE, FCVAR_SERVER_CAN_EXECUTE, FCVAR_PROTECTED }, 'Arcker\'s developer password')
 	Arcker.Devs = {}
 	Arcker.LoginDelay = {}
+	
+	function Arcker:FlushDevs()
+		self.Devs = {}
+		self.LoginDelay = {}
+		for k, v in ipairs( player.GetAll() ) do
+			v:SetNWBool( "ArckerDev", false )
+		end
+	end
 	
 	net.Receive( 'arcker login', function( len, ply )
 		if Arcker.LoginDelay[ply] then return end
@@ -30,6 +40,7 @@ if SERVER then
 	end )
 	
 	net.Receive( 'arcker sv lua', function( len, ply )
+		if not Arcker.Devs[ply] then Arcker.Print( ply, 1, Color( 255, 0, 0 ), 'Not logged in.' ) return end
 		local s = string.format( [[ local print = function( ... ) Arcker.Print( ply, 1, ... ) end return ( %s ) or nil ]], string.sub( net.ReadString(), 4 ) )
 		local function run( )
 			local func = CompileString( s, string.format( '%s(%s)\'s lua run', ply:GetName(), ply:SteamID() ), false )
