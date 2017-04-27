@@ -29,51 +29,10 @@ if SERVER then
 		============== SERVERSIDE VARIABLES ==============
 	*/
 	util.AddNetworkString( 'arcker files' )
-	local Debug = CreateConVar( 'arcker_debug', 0, { FCVAR_ARCHIVE, FCVAR_SERVER_CAN_EXECUTE }, 'Debug mode for arcker')
-	function Arcker.Debug(...)
-		if Debug:GetBool() then
-			local Stack = string.split( debug.traceback(), '\n\t' ) // Getting stack trace. 'addons/arcker/lua/autorun/arcker.lua:0: in main chunk'
-			local Sub = { string.find( Stack[#Stack], '[0-9]+:' ) } // Finds second colon. 'addons/arcker/lua/autorun/arcker.lua:0'
-			print('[Arcker] at ' .. string.sub( Stack[#Stack], 0, Sub[2]-1 ) ) // Prints from where the function call was made
-			local Args = {...}
-			if #Args == 1 and type(Args[1]) == 'table' then
-				PrintTable( Args[1] )
-			else
-				print( ... )
-			end
-		end
-	end
+	include( 'Arcker/core/util.lua' )
 	
-
-	function Arcker:PrintTable( t )
-		print( util.TableToJSON( t, true ) )
-	end
-	function Arcker:PrintA(n, ...)
-		local t = { ... }
-		local ret = ""
-		if n ~= 1 and n ~= 2 then
-			t = {n}
-		end
-		for k, v in pairs(t) do
-			if type(v) == "Player" then
-				ret = ret .. v:Nick() .. "(" .. v:SteamID() .. ")"
-			elseif type(v) == "table" then
-				ret = ret .. tostring(v)
-			else
-				ret = ret .. v
-			end
-			ret = ret .. " "
-		end
-
-
-		if n == 1 then
-			MsgC(Arcker:Color(), Arcker:GetName(), ' ', Arcker:Color(''), ret, '\n' )
-		elseif n == 2 then
-			MsgC(Arcker:Color(), Arcker:GetName(), ' ', Arcker:Color('err'), 'ERROR: ', ret, '\n' )
-		end
-	end
-
 	function Arcker:Boot()
+		self:Debug( 'BOOTING' )
 		self.Files = {}
 		self.ClientFiles = {}
 		
@@ -112,9 +71,7 @@ if SERVER then
 			
 			if not ( C['sv'] or C['cs'] ) then
 				// File missing metatags
-				self:PrintA( 2, 'File missing metatags: ', fl )
-				C['sv'] = true 
-				C['type'] = 'serverside' 
+				self:PrintA( 'File missing metatags: ', fl )
 			end
 			
 			C.Sequence = tonumber( string.match( read, "\n?//[%s]*sequence%([%s]*([0-9]+)[%s]*%)[%s]*\n?", 1 ) or '0' ) or 0
@@ -124,11 +81,12 @@ if SERVER then
 		table.sort( self.Files, function( a, b ) return a.Sequence > b.Sequence end )
 		
 		local function FormatPrint(var)
-			local w = var
-			local r = {"_sv","_cl","_sh",".lua","aura/","/"}
+			local w = string.lower( var )
+			local r = {"_sv","_cl","_sh",".lua","aura/"}
 			for k, v in ipairs( r ) do
 				 w = string.Replace( w, v, '' )
 			end
+			w = string.Replace( w, '/', '.' )
 			return w
 		end
 
@@ -141,9 +99,11 @@ if SERVER then
 					AddCSLuaFile(v.Name)
 					table.insert(self.ClientFiles, v.Name)
 				end
-				self:PrintA(1, string.format( "Initialized %s file: %s", v.type, FormatPrint(v.Name) ) )
+				if v.sv or v.cs then
+					self:Debug( string.format( "Initialized %s file: %s", v.type, FormatPrint(v.Name) ) )
+				end
 			end
-		end//
+		end
 
 		IncludeAll()
 
