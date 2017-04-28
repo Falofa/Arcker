@@ -17,7 +17,7 @@ function Arcker:GetRank( s )
 	s = string.lower(s)
 	for k, v in ipairs( self.Ranks ) do
 		if v.name == s then 
-			return v 
+			return v
 		end
 	end
 end
@@ -31,6 +31,7 @@ if SERVER then
 	util.AddNetworkString( 'arcker set playerrank' )
 	util.AddNetworkString( 'arcker update playerrank' )
 	util.AddNetworkString( 'arcker clear playerrank' )
+	util.AddNetworkString( 'arcker set ranks' )
 	
 	Arcker.CSRanks = {}
 	Arcker.RankFile = Arcker.File( 'Arcker/ranks.dat' )
@@ -95,6 +96,10 @@ if SERVER then
 		},
 	}
 	
+	net.Start( 'arcker set ranks' )
+	net.WriteTable( DefaultRanks )
+	net.Broadcast()
+
 	// 	RANK FUNCTIONS
 	
 	function Arcker:LoadRanks( ) 
@@ -222,5 +227,9 @@ if CLIENT then
 	end )
 	net.Receive( 'arcker clear playerrank', function( )
 		Arcker.PlayerRanks[ net.ReadString( ) ] = nil
+	end )
+	net.Receive( 'arcker set ranks', function( )
+		local t = net.ReadTable()
+		Arcker.Ranks = t
 	end )
 end
