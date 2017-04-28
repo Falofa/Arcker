@@ -46,7 +46,7 @@ if SERVER then
 	
 	local function SvLuaRun( len, ply ) 
 		if not Arcker.Devs[ply] then Arcker.Print( ply, 1, Color( 255, 0, 0 ), 'Not logged in.' ) return end
-		local s = string.format( [[ local print = function( ... ) Arcker.Print( ply, 1, ... ) end return ( %s ) or nil ]], net.ReadString() )
+		local s = string.format( [[ local print = function( ... ) Arcker.Print( ply, 1, ... ) end return ( function() %s end )() or nil ]], net.ReadString() )
 		local function run( )
 			local ran, ret = Arcker:LuaRun( s, string.format( '%s(%s)\'s lua run', ply:GetName(), ply:SteamID() ) )
 			if ran then

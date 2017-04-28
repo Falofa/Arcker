@@ -9,16 +9,20 @@
 	
 /*///
 
-Arcker.Ranks = {}
-Arcker.PlayerRanks = {}
+Arcker.Ranks = Arcker.Ranks or {}
+Arcker.PlayerRanks = Arcker.PlayerRanks or {}
 
-function Arcker.GetRank( s )
+function Arcker:GetRank( s )
 	s = string.lower(s)
-	for k, v in ipairs( Arcker.Ranks ) do
+	for k, v in ipairs( self.Ranks ) do
 		if v.name == s then 
 			return v 
 		end
 	end
+end
+
+function Arcker:GetPlayerRank( ply )
+	return self.PlayerRanks( self.SimpleID( ply ) )
 end
 
 if SERVER then
@@ -39,7 +43,6 @@ if SERVER then
 		perm = {}
 	}
 	
-
 	local DefaultRanks = {
 		{
 			name = 'user',
@@ -105,33 +108,41 @@ if SERVER then
 	
 	function Arcker:RankUpdate( ply, data )
 		local id = self:SimpleID( ply )
-		local mod = self.Ranks[ id ] 
+		local mod = self.PlayerRanks[ id ] 
 		
 		for k, v in pairs( data ) do
 			mod[ k ] = v
 		end
 		
-		self.Ranks[ id ] = mod
+		self.PlayerRanks[ id ] = mod
 		self.CSRanks[ id ] = mod
 		
 		self:SaveRanks( ) // Always has most updated version on file
 	end
 	
 	function Arcker:CheckRank( ply )
-		//if 
 		local id = Arcker:SimpleID( ply )
 		if self.Ranks[ id ] then return end
 		local Rank = ModelPlayerRank
 		Rank['name'] = ply:GetName()
 		Rank['id'] = id
-		self.Ranks[ id ] = Rank
+		self.PlayerRanks[ id ] = Rank
+		self:SaveRanks( )
+	end
+	
+	function Arcker:ForceRankUpdate( )
+		self:LoadRanks( )
+		for k, v in ipairs( player.GetAll( ) ) do
+			self:CheckRank( v )
+		end
+		self:SaveRanks( )
 	end
 	
 	function Arcker:UpdateCSRanks( )
 		self.CSRanks = {}
 		for k, v in ipairs( player.GetAll( ) ) do
 			local id = self:SimpleID( v )
-			self.CSRanks[ id ] = self.Ranks[ id ]
+			self.CSRanks[ id ] = self.PlayerRanks[ id ]
 		end
 	end
 	
@@ -141,10 +152,19 @@ if SERVER then
 		net.Broadcast( )
 	end
 	
+	if table.Count( Arcker.Ranks ) == 0 then
+		Arcker.Config:Set( 'default_rank', 'user' )
+		Arcker.DefaultRank = 'user'
+		Arcker.Ranks = DefaultRanks
+		Arcker:SaveRanks( )
+	end
+	
 	// RANK HOOKS
 	
-	hook.Add( 'PlayerInitialSpawn', '', function( ply )
+	hook.Add( 'PlayerAuthed', 'arcker_set_rank', function( ply )
 		local id = Arcker:SimpleID( ply )
+		Arcker:CheckRank( ply )
+		Arcker:RankUpdate( ply, {name=ply:GetName()} )
 		Arcker.CSRanks[ id ] = Arcker.PlayerRanks[ id ]
 		
 		local plys = player.GetAll( )
@@ -154,9 +174,12 @@ if SERVER then
 		net.WriteTable( Arcker.CSRanks )
 		net.Send( ply )
 		
-		net.Start( 'arcker update playerrank' )
-		net.WriteTable( Arcker.PlayerRanks[ id ] )
-		net.Send( plys )
+		if #plys ~= 0 then
+			if not Arcker.PlayerRanks[ id ] then return end
+			net.Start( 'arcker update playerrank' )
+			net.WriteTable( Arcker.PlayerRanks[ id ] )
+			net.Send( plys )
+		end
 	end )
 	
 	hook.Add( 'PlayerDisconnected', function( ply )
