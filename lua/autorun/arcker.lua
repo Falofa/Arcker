@@ -1,7 +1,12 @@
 AddCSLuaFile( )
-/*
+/*///
+	
+	Developed by:
+	Falofa (http://steamcommunity.com/id/falofa)
+	Pukki (http://steamcommunity.com/id/Plurily)
+
     ============== GLOBAL VARIABLES ==============
-*/
+/*///
 
 Arcker = Arcker or { }
 Arcker.Version = '0.1 ALPHA'
@@ -25,9 +30,9 @@ Arcker.Color = setmetatable(
 })
 
 if SERVER then
-	/*
+	/*///
 		============== SERVERSIDE VARIABLES ==============
-	*/
+	/*///
 	util.AddNetworkString( 'arcker files' )
 	include( 'Arcker/core/util.lua' )
 	
@@ -122,15 +127,15 @@ if SERVER then
 
 	Arcker:Boot()
 	
-	hook.Add( 'PlayerAuthed', Arcker.CsInclude )
-	hook.Add( 'PlayerInitialSpawn', Arcker.CsInclude )
+	hook.Add( 'PlayerAuthed', 'arcker authed include', Arcker.CsInclude )
+	hook.Add( 'PlayerInitialSpawn', 'arcker spawn include', Arcker.CsInclude )
 	
 end
 
 if CLIENT then
-	/*
+	/*///
 		============== CLIENTSIDE VARIABLES ==============
-	*/
+	/*///
 	Arcker.ClientFiles = {}
 	net.Receive( 'arcker files', function( L )
 		Arcker.ClientFiles = net.ReadTable()

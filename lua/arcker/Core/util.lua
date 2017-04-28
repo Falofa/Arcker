@@ -5,9 +5,41 @@ function Arcker:PrintTable( t )
 	print( util.TableToJSON( t, true ) )
 end
 
+function Arcker:Ply( info )
+	for k, v in pairs(pls) do
+		if string.find(string.lower(v:Name()), string.lower(tostring(info))) ~= nil then
+			return v
+		end
+	end
+end
+
+function Arcker:SimpleID( p ) // Either player or SteamID string
+	local id = ( IsEntity( p ) and IsPlayer( p ) ) and p:SteamID() or tostring( p )
+	local x, y, z = string.match( string.Replace( id, 'STEAM_', '' ), '([0-9]+):([0-9]+):([0-9]+)' )
+	local w = x + bit.lshift(y, 4)
+	return string.upper( string.format( '%s-%s', bit.tohex( w, 2 ), string.TrimLeft( bit.tohex( z, 20 ), '0' ) ) )
+end
+
+function Arcker:SteamID( s )
+	local w, z = string.match( s, '([0-9A-Fa-f]+)%-([0-9A-Fa-f]+)' )
+	w = tonumber( w, 16 )
+	z = tonumber( z, 16 )
+	local x = bit.band( w, 0x0F )
+	local y = bit.rshift( w, 4 )
+	return string.format( 'STEAM_%s:%s:%s', x, y, z )
+end
+
 if SERVER then
 	
 	local Debug = CreateConVar( 'arcker_debug', 0, { FCVAR_ARCHIVE, FCVAR_SERVER_CAN_EXECUTE }, 'Debug mode for arcker')
+	/*
+	
+		"arcker_debug" def: 0
+		0: Disabled
+		1: Simple
+		2: With traceback
+	
+	*/
 	function Arcker:Debug( ... )
 		if Debug:GetInt() then
 			if Debug:GetInt() == 2 then
@@ -24,6 +56,13 @@ if SERVER then
 				print( ... )
 			end
 		end
+	end
+	
+	function Arcker:Error( s )
+		local Stack = string.split( debug.traceback(), '\n\t' ) // Copied from Arcker:Debug()
+		local Sub = { string.find( Stack[#Stack], '[0-9]+:' ) }
+		print('[Arcker] Exception at ' .. string.Replace( string.sub( Stack[#Stack], 0, Sub[2]-1 ), 'addons/arcker/lua/', '' ) )
+		print( string.format( 'Message: %s.', s ) )
 	end
 	
 	function Arcker:PrintA( ... )

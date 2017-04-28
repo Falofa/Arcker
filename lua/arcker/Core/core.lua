@@ -39,12 +39,16 @@ if SERVER then
 		timer.Simple( 5, function() Arcker.LoginDelay[ply] = nil end )
 	end )
 	
-	net.Receive( 'arcker sv lua', function( len, ply )
+	function Arcker:LuaRun( s, n )
+		local func = CompileString( s, n, false )
+		return pcall( func )
+	end
+	
+	local function SvLuaRun( len, ply ) 
 		if not Arcker.Devs[ply] then Arcker.Print( ply, 1, Color( 255, 0, 0 ), 'Not logged in.' ) return end
-		local s = string.format( [[ local print = function( ... ) Arcker.Print( ply, 1, ... ) end return ( %s ) or nil ]], string.sub( net.ReadString(), 4 ) )
+		local s = string.format( [[ local print = function( ... ) Arcker.Print( ply, 1, ... ) end return ( %s ) or nil ]], net.ReadString() )
 		local function run( )
-			local func = CompileString( s, string.format( '%s(%s)\'s lua run', ply:GetName(), ply:SteamID() ), false )
-			local ran, ret = pcall( func )
+			local ran, ret = Arcker:LuaRun( s, string.format( '%s(%s)\'s lua run', ply:GetName(), ply:SteamID() ) )
 			if ran then
 				if ret == nil then Arcker.Print( ply, 1, Color( 255, 255, 255 ), "Returned nil" ) return end
 				local val = tostring( ret )
@@ -61,7 +65,9 @@ if SERVER then
 			end
 		end
 		run()
-	end	)
+	end
+	
+	net.Receive( 'arcker sv lua', SvLuaRun )
 end
 
 if CLIENT then
@@ -81,19 +87,42 @@ Arcker.ConCommands = {
 		net.SendToServer()
 	end,
 	['sl'] = function( ply, cmd, args, raw )
-		net.Start( 'arcker sv lua' )
-		net.WriteString( raw )
-		net.SendToServer()
-	end
+		raw = string.sub( raw, 4 )
+		if ply and ply:GetNWBool( "ArckerDev" ) then
+			net.Start( 'arcker sv lua' )
+			net.WriteString( raw )
+			net.SendToServer()
+			return
+		end
+		if not IsValid( ply ) and SERVER then
+			local ran, ret = Arcker:LuaRun( string.format( [[ return ( %s ) or nil ]], raw ), 'LuaRun' )
+			if ran then 
+				local val = ( ret ~= nil ) and ( tostring( ret ) ) or ( 'nil' )
+				if type( ret ) == 'table' then
+					val = util.TableToJSON( ret, true )
+				end
+				if type( ret ) == 'function' then
+					local fi = debug.getinfo(ret)
+					val = string.format( '%s - %s:%i', val, fi['source'], fi['linedefined'] )
+				end
+				print( string.format( "Returned %s: %s", string.lower( type( ret ) ), val ) )
+			else
+				print( ret )
+			end
+			return
+		end
+	end,
 }
 
 concommand.Add( 'arcker', function( ply, cmd, args, raw ) 
 	if not ply then return end
 	if #args == 0 then
 		print( Arcker.Name .. ' - Version: ' .. Arcker.Version )
-		return nil
+		return
 	end
-	if Arcker.ConCommands[args[1]] ~= nil then
+	if Arcker.ConCommands[args[1]] then
 		Arcker.ConCommands[args[1]]( ply, cmd, args, raw )
+		return
 	end
+	print( 'Invalid command' )
 end )
