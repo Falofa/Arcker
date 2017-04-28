@@ -6,7 +6,7 @@ function Arcker:PrintTable( t )
 end
 
 function Arcker:Ply( info )
-	for k, v in pairs(pls) do
+	for k, v in pairs(player.GetAll()) do
 		if string.find(string.lower(v:Name()), string.lower(tostring(info))) ~= nil then
 			return v
 		end
@@ -14,7 +14,7 @@ function Arcker:Ply( info )
 end
 
 function Arcker:SimpleID( p ) // Either player or SteamID string
-	local id = ( IsEntity( p ) and IsPlayer( p ) ) and p:SteamID() or tostring( p )
+	local id = ( IsEntity( p ) and p:IsPlayer() ) and p:SteamID() or tostring( p )
 	local x, y, z = string.match( string.Replace( id, 'STEAM_', '' ), '([0-9]+):([0-9]+):([0-9]+)' )
 	local w = x + bit.lshift(y, 4)
 	return string.upper( string.format( '%s-%s', bit.tohex( w, 2 ), string.TrimLeft( bit.tohex( z, 20 ), '0' ) ) )
