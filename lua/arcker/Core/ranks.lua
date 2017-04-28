@@ -13,6 +13,7 @@ Arcker.Ranks = Arcker.Ranks or {}
 Arcker.PlayerRanks = Arcker.PlayerRanks or {}
 
 function Arcker:GetRank( s )
+	if s == nil then return end
 	s = string.lower(s)
 	for k, v in ipairs( self.Ranks ) do
 		if v.name == s then 
@@ -49,7 +50,7 @@ if SERVER then
 			display = 'User',
 			color = Color( 244, 238, 66 ), // Yellow
 			tag = {'[User]'},
-			perm = {},
+			perm = {'default'},
 			inherits = ''
 		},
 		{
@@ -117,24 +118,37 @@ if SERVER then
 		self.PlayerRanks[ id ] = mod
 		self.CSRanks[ id ] = mod
 		
+		self:SendCSRank( id, player.GetAll( ) )
 		self:SaveRanks( ) // Always has most updated version on file
 	end
 	
-	function Arcker:CheckRank( ply )
+	function Arcker:SendCSRank( id, ply )
+		net.Start( 'arcker update playerrank' )
+		net.WriteTable( Arcker.PlayerRanks[ id ] )
+		net.Send( ply )
+	end
+	
+	function Arcker:CheckRank( ply, no_save )
 		local id = Arcker:SimpleID( ply )
-		if self.Ranks[ id ] then return end
+		if self.PlayerRanks[ id ] then return end
 		local Rank = ModelPlayerRank
 		Rank['name'] = ply:GetName()
 		Rank['id'] = id
 		self.PlayerRanks[ id ] = Rank
-		self:SaveRanks( )
+		self.CSRanks[ id ] = Rank
+		if not no_save then self:SaveRanks( ) end
 	end
 	
 	function Arcker:ForceRankUpdate( )
 		self:LoadRanks( )
 		for k, v in ipairs( player.GetAll( ) ) do
-			self:CheckRank( v )
+			self:CheckRank( v, true )
 		end
+		
+		net.Start( 'arcker set playerrank' )
+		net.WriteTable( Arcker.CSRanks )
+		net.Send( ply )
+		
 		self:SaveRanks( )
 	end
 	
@@ -203,9 +217,8 @@ if CLIENT then
 		Arcker.PlayerRanks = net.ReadTable( )
 	end )
 	net.Receive( 'arcker update playerrank', function( )
-		local ply = player.GetAll( )[ net.ReadInt( 16 ) ]
 		local t = net.ReadTable( )
-		Arcker.PlayerRanks[ Arcker:SimpleID( ply ) ] = t
+		Arcker.PlayerRanks[ t.id ] = t
 	end )
 	net.Receive( 'arcker clear playerrank', function( )
 		Arcker.PlayerRanks[ net.ReadString( ) ] = nil

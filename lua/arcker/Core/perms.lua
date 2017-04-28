@@ -37,7 +37,16 @@ function Arcker.Perm:HasPermission( ply, perm )
 		id = Arcker:SimpleID( ply )
 	end
 	
-	local gp = UniquePerms( table.concat( Arcker.PlayerRanks[ id ].perm, Arcker.GetRank( Arcker.PlayerRanks[ id ].name ) ) )
+	local base = Arcker.GetRank( Arcker.PlayerRanks[ id ].rank )
+	print(base)
+	local inherit = true
+	local gp = Arcker.PlayerRanks[ id ].perm
+	while inherit do
+		gp = UniquePerms( table.concat( gp, base.perm or {} ) )
+		inherit = base.inherits and base.inherits ~= ''
+		base = Arcker.GetRank( base.inherits )
+		if base == nil then inherit = false end
+	end
 	// local gp = { 'player.kick', 'player.ban', chat.asay, 'foo.*' } // Sample
 	
 	for k, v in ipairs( gp ) do
