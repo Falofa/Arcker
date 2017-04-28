@@ -28,8 +28,8 @@ if SERVER then
 	util.AddNetworkString( 'arcker clear playerrank' )
 	
 	Arcker.CSRanks = {}
-	Arcker.RankFile = Arcker.File( 'Arcker/player_ranks.dat' )
-	Arcker.PlayerRanksFile = Arcker.File( 'Arcker.PlayerRanks.dat' )
+	Arcker.RankFile = Arcker.File( 'Arcker/ranks.dat' )
+	Arcker.PlayerRanksFile = Arcker.File( 'Arcker/player_ranks.dat' )
 	Arcker.DefaultRank = Arcker.Config:Get( 'default_rank', 'user' )
 	
 	local ModelPlayerRank = {
@@ -94,10 +94,12 @@ if SERVER then
 	// 	RANK FUNCTIONS
 	
 	function Arcker:LoadRanks( ) 
+		self.PlayerRanks = self.PlayerRanksFile:ReadTable( ) 
 		self.Ranks = self.RankFile:ReadTable( ) 
 	end
 	
 	function Arcker:SaveRanks( ) 
+		self.PlayerRanksFile:WriteTable( self.PlayerRanks ) 
 		self.RankFile:WriteTable( self.Ranks ) 
 	end
 	
