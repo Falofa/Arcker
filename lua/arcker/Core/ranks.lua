@@ -133,6 +133,12 @@ if SERVER then
 		net.Send( ply )
 	end
 	
+	function Arcker:SendRanks( ply )
+		net.Start( 'arcker set rank' )
+		net.WriteTable( self.Ranks )
+		net.Send( ply )
+	end
+	
 	function Arcker:CheckRank( ply, no_save )
 		local id = Arcker:SimpleID( ply )
 		if self.PlayerRanks[ id ] then return end
@@ -172,10 +178,13 @@ if SERVER then
 	end
 	
 	if table.Count( Arcker.Ranks ) == 0 then
-		Arcker.Config:Set( 'default_rank', 'user' )
-		Arcker.DefaultRank = 'user'
-		Arcker.Ranks = DefaultRanks
-		Arcker:SaveRanks( )
+		Arcker:LoadRanks( )
+		if table.Count( Arcker.Ranks ) == 0 then
+			Arcker.Config:Set( 'default_rank', 'user' )
+			Arcker.DefaultRank = 'user'
+			Arcker.Ranks = DefaultRanks
+			Arcker:SaveRanks( )
+		end
 	end
 	
 	// RANK HOOKS
@@ -188,6 +197,8 @@ if SERVER then
 		
 		local plys = player.GetAll( )
 		table.RemoveByValue( plys, ply )
+		
+		Arcker:SendRanks( ply )
 		
 		net.Start( 'arcker set playerrank' )
 		net.WriteTable( Arcker.CSRanks )
@@ -211,6 +222,7 @@ if SERVER then
 	
 	Arcker:LoadRanks( )
 	Arcker:UpdateCSRanks( )
+	Arcker:SendRanks( player.GetAll( ) )
 end
 
 if CLIENT then
