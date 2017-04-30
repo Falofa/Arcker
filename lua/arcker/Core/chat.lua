@@ -2,6 +2,7 @@
 // Sequence( 3000 )
 
 if SERVER then
+
 	local META = FindMetaTable( "Player" )
 
 	function META:ArckerPrint( ... )
@@ -14,11 +15,11 @@ if SERVER then
 			if IsColor( t[1] ) then
 				Add( t[1] )
 			elseif t[1] == 1 then
-				Add( Arcker:Color( 'war' ) )
+				Add( Arcker:Color( 'Glow' ) )
 			elseif t[1] == 2.1 then
-				Add( Arcker:Color( 'err' ))
+				Add( Arcker:Color( 'Lips' ))
 			elseif t[1] == 2.2 then
-				Add( Arcker:Color( 'granted' ) )
+				Add( Arcker:Color( 'Alert' ) )
 			else
 				Add( PrintColor )
 			end
