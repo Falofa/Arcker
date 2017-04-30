@@ -2,31 +2,25 @@
 // Sequence( 3000 )
 
 if SERVER then
-	local PrintColor =    Color( 186, 186, 186 )
-	local PrintWarColor = Color( 235, 123,  89 )
-	local PrintErrColor = Color( 200, 0,     0 )
-	local PrintGrantedColor = Color( 0, 200, 0 )
 	local META = FindMetaTable( "Player" )
-	local Tag = "Arcker.PlayerPrint"
 
-	util.AddNetworkString( Tag )
-	function META:Print( ... )
+	function META:ArckerPrint( ... )
 		local t = {...}
 		local ret = {}
+		function Add( ... ) table.insert( ret, ... ) end
 		local id = Arcker:SimpleID( self )
 		local rank = Arcker:GetRank( Arcker.PlayerRanks[id].rank )
 		-- Color parsing:
 			if IsColor( t[1] ) then
-				table.insert( ret, t[1] )
+				Add( t[1] )
 			elseif t[1] == 1 then
-				table.insert( ret, PrintWarColor )
+				Add( Arcker:Color( 'war' ) )
 			elseif t[1] == 2.1 then
-				table.insert( ret, PrintErrColor )
+				Add( Arcker:Color( 'err' ))
 			elseif t[1] == 2.2 then
-				table.insert( ret, PrintGrantedColor )
+				Add( Arcker:Color( 'granted' ) )
 			else
-				table.insert( ret, PrintColor )
-				table.insert( t, 1, "del" )
+				Add( PrintColor )
 			end
 			table.remove( t, 1 ) -- Make sure we remove the color for next parsing
 		-- Parsing:
@@ -64,38 +58,34 @@ if SERVER then
 			end
 		end
 		-- Sending to player:
-		net.Start( Tag )
+		net.Start( 'arcker print' )
 		net.WriteTable( ret )
 		net.Send( self )
 	end
 end
 
 if CLIENT then
-	net.Receive( "Arcker.PlayerPrint", function(  )
-		local t = net.ReadTable(  )
-		timer.Simple( 0.01, function(  )
-			chat.AddText(  unpack(  t  )  )
-		end )
-	end )
-
-	local defaultcolor = Color( 180, 150, 168 )
 	hook.Add( "OnPlayerChat", "Arcker.ChatBoxMods", function( ply, str, team, ded )
 		local tab = {}
+		local function Add( ... ) table.insert( tab, ... ) end
 		local id = Arcker:SimpleID( ply )
 		local rank = Arcker:GetRank( Arcker.PlayerRanks[id].rank ) or nil
 		print( rank )
 		if ply and IsValid( ply ) then
 			if rank then
-				table.insert( tab, rank.color or defaultcolor )
-				table.insert( tab, rank.tag[1]..' ' ) -- !
-				table.insert( tab, ply:Nick(  )..': ')
-				table.insert( tab, Color( 255, 255, 255) )
-				table.insert( tab, str )
+				Add( rank.color or defaultcolor )
+				for k, v in ipairs( rank.tag ) do
+					Add( v )
+				end
+				Add( ' ' )
+				Add( ply:GetName( ) .. ': ')
+				Add( Color( 255, 255, 255 ) )
+				Add( str )
 			else
-				table.insert( tab, Color(  150, 150, 150, 200  ) )
-				table.insert( tab, ply:Nick(  )..': ')
-				table.insert( tab, Color( 255, 255, 255) )
-				table.insert( tab, str )
+				Add( Color(  150, 150, 150, 200  ) )
+				Add( ply:GetName( ) .. ': ')
+				Add( Color( 255, 255, 255) )
+				Add( str )
 			end
 		else
 			table.insert( str, Color( 150, 150, 150 ) )

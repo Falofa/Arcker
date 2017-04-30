@@ -95,10 +95,6 @@ if SERVER then
 			inherits = 'superamin'
 		},
 	}
-	
-	net.Start( 'arcker set ranks' )
-	net.WriteTable( DefaultRanks )
-	net.Broadcast()
 
 	// 	RANK FUNCTIONS
 	

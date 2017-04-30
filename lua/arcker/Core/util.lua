@@ -29,6 +29,10 @@ function Arcker:SteamID( s )
 	return string.format( 'STEAM_%s:%s:%s', x, y, z )
 end
 
+function Arcker:IsColor( c )
+	return ( c.r and c.g and c.b )
+end
+
 if SERVER then
 	
 	local Debug = CreateConVar( 'arcker_debug', 0, { FCVAR_ARCHIVE, FCVAR_SERVER_CAN_EXECUTE }, 'Debug mode for arcker')

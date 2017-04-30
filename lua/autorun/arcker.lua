@@ -17,12 +17,15 @@ end
 
 Arcker.Color = setmetatable( 
 {
-	[''] = 			Color(186, 186, 186), // Default
-	['war'] =		Color(235, 123,  89),
-	['err'] =		Color(200,   0,   0),
-	['sublime'] =	Color(110, 150, 152),
+	[''] = 			Color( 186, 186, 186 ), // Default
+	['war'] =		Color( 235, 123,  89 ),
+	['err'] =		Color( 200,   0,   0 ),
+	['sublime'] =	Color( 110, 150, 152 ),
+	['chat_def'] =	Color( 180, 150, 168 ),
+	['granted'] =	Color(   0, 200,   0 ),
+	['white'] = 	Color( 255, 255, 255 ),
 },
-{ 
+{
 	__call = function(self, s)
 		if not s then s = "" end
 		return self[s] or self['']
