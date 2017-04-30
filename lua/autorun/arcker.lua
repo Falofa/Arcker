@@ -18,18 +18,18 @@ end
 
 Arcker.Color = setmetatable( 
 {
-	['def'] = 		{Color( 186, 186, 186 ), "Default"}
-	['chat_def'] =	{Color( 180, 150, 168 ), ""}
-	['white'] = 	{Color( 255, 255, 255 ), "White"}
-	['def'] = 		{Color( 200, 200, 200), "Grey"},
-	['Lips'] = 		{Color( 164, 8, 2 ), "Red"},
-	['Magenta'] =	{Color( 82, 0, 57 ), "Purple"},
+	['def'] = 		{Color( 186, 186, 186 ), "Default"},
+	['chat_def'] =	{Color( 180, 150, 168 ), "Chat default"},
+	['white'] = 	{Color( 255, 255, 255 ), "White"},
+	['def'] = 		{Color( 200, 200, 200 ), "Grey"},
+	['Lips'] = 		{Color( 164,   8,   2 ), "Red"},
+	['Magenta'] =	{Color( 82,    0,  57 ), "Purple"},
 	['Freeze'] = 	{Color( 186, 228, 229 ), "Blue"},
-	['Pool'] = 		{Color( 52, 190, 218 ), "Blue"},
+	['Pool'] = 		{Color(  52, 190, 218 ), "Blue"},
 	['Frog'] = 		{Color( 195, 255, 104 ), "Green"},
 	['Green tea'] = {Color( 202, 232, 162 ), "Green"},
-	['Alert'] = 	{Color( 127, 255, 36 ), "Green"},
-	['Glow'] = 		{Color( 255, 82, 0 ), "Orange"}
+	['Alert'] = 	{Color( 127, 255,  36 ), "Green"},
+	['Glow'] = 		{Color( 255,  82,   0 ), "Orange"},
 },
 {
 	__call = function(self, s, d)
