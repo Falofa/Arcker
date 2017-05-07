@@ -30,76 +30,17 @@ Arcker.Color = setmetatable(
 	['Green tea'] = {Color( 202, 232, 162 ), "Green"},
 	['Alert'] = 	{Color( 127, 255,  36 ), "Green"},
 	['Glow'] = 		{Color( 255,  82,   0 ), "Orange"},
-	['Default'] = 	{Color(150, 150, 150), "Grey"},
-	['Purpose'] =	{Color(114, 19, 178), "Purple"},
-	['Heart'] = 	{Color(178, 19, 19), "Red"},
-	['Mustard'] = 	{Color(175, 175, 19), "Yellow"},
-	['Lettuce'] = 	{Color(136, 175, 19), "Green"},
-	['Rose'] = 		{Color(175, 19, 123), "Pink"},
-	['Error'] = 	{Color(255, 35, 35), "Red"},
-	['Happy'] = 	{Color(224, 203, 237), "Light pink"},
-	['Ice'] = 		{Color(160, 245, 255), "Blue"},
-	['Freeze'] = 	{Color(0, 228, 255), "Blue"},
-	['Sky'] = 		{Color(0, 42, 255), "Blue"},
-	['Granted'] = 	{Color(59, 255, 0), "Green"}
 },
 {
-	__call = function(t, s, mod)
-		if t[s] then
-			if mod then
-				local ex = string.Explode(" ", tostring(t[s][1]))
-				local m = 0
-				local ret = {}
-				for k, v in pairs(ex) do
-					if ex[#ex] == v then
-						break
-					end
-					v = tonumber(v)
-					m = m <= v and v or m
-				end
-				table.insert(ret, 1, {tostring(m)})
-				table.RemoveByValue(ex, tostring(m))
-				local c = 0
-				for _, x in pairs(ex) do
-					c = c + 1
-					if ret[1][1] == x then
-						table.insert(ret[1], x)
-						table.remove(ex, c)
-						table.insert(ex, 1, nil)
-					end
-				end
-				local n = tonumber(string.sub(mod, 2, #mod))
-				local fin = {}
-				local c1 = 0
-				for k, v in pairs(ret[1]) do
-					c1 = c1 + 1
-					if string.Left(mod, 1) == "-" then
-						ret[1][c1] = v - n
-						if ret[1][c1] < 0 then ret[1][c1] = 0 end
-					elseif string.Left(mod, 1) == "+" then
-						ret[1][c1] = v + n
-						if ret[1][c1] > 255 then ret[1][c1] = 255 end
-					end
-					table.insert(fin, ret[1][c1])
-				end
-				local c2 = 0
-				for k, v in pairs(ex) do
-					c2 = c2 + 1
-					if string.Left(mod, 1) == "-" then
-						ex[c2] = v - math.floor(n/2)
-						if ex[c2] < 0 then ex[c2] = 0 end
-					elseif string.Left(mod, 1) == "+" then
-						ex[c2] = v + math.floor(n/2)
-						if ex[c2] > 255 then ex[c2] = 255 end
-					end
-					table.insert(fin, ex[c2])
-				end
-				return Color(fin[1], fin[2], fin[3], 255)
+	__call = function(self, s, d)
+		if self[s] then
+			if tobool(d) == true then
+				return self[s]
 			else
-				return t[s]
+				return self[s][1]
 			end
-		else
-			return t['Default']
+		else 
+			return self['def'][1]
 		end
 	end
 })
